@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
@@ -68,7 +69,11 @@ namespace Demo.SceneGraphs
             var carWheelTexture = Content.Load<Texture2D>("car-wheel");
             var carWheelSprite = new Sprite(carWheelTexture);
 
+            // This is ultimately the functionality I am seeking.  The implementation
+            // could be done in radically different ways.
             _carNode = new SceneNode("car-hull", viewportAdapter.Center.ToVector2());
+            _carNode.MouseDown += (x, y) => { Console.WriteLine("Mouse Down on the Car!"); };
+            _carNode.MouseUp += (x, y) => { Console.WriteLine("Mouse Up on the Car!"); };
             _carNode.Entities.Add(carHullSprite);
 
             _leftWheelNode = new SceneNode("left-wheel", new Vector2(-29, 17));
@@ -76,6 +81,9 @@ namespace Demo.SceneGraphs
 
             _rightWheelNode = new SceneNode("right-wheel", new Vector2(40, 17));
             _rightWheelNode.Entities.Add(carWheelSprite);
+            
+            _rightWheelNode.MouseDown += (x, y) => { Console.WriteLine("Mouse Down on right wheel!"); };
+            _rightWheelNode.MouseUp += (x, y) => { Console.WriteLine("Mouse Up on right wheel!"); };
 
             _carNode.Children.Add(_rightWheelNode);
             _carNode.Children.Add(_leftWheelNode);
@@ -128,6 +136,9 @@ namespace Demo.SceneGraphs
 
             var worldPosition = _camera.ScreenToWorld(mouseState.X, mouseState.Y);
             _hoveredNode = _sceneGraph.GetSceneNodeAt(worldPosition);
+
+            // This needs to be generalized.
+            _sceneGraph.ProcessInput(mouseState, _camera);
 
             base.Update(gameTime);
         }

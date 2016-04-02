@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace MonoGame.Extended.SceneGraphs
 {
@@ -38,6 +40,24 @@ namespace MonoGame.Extended.SceneGraphs
         public SceneNode GetSceneNodeAt(Vector2 position)
         {
             return GetSceneNodeAt(position.X, position.Y);
+        }
+
+        public void ProcessInput(MouseState mouse, Camera2D camera)
+        {
+            var worldPosition = camera.ScreenToWorld(mouse.X, mouse.Y);
+            var node = GetSceneNodeAt(worldPosition.X, worldPosition.Y);
+
+            if (node != null)
+            {
+                if (mouse.LeftButton == ButtonState.Pressed)
+                {
+                    node.HandleMouseDown(mouse.X, mouse.Y);
+                }
+                else if (mouse.LeftButton == ButtonState.Released)
+                {
+                    node.HandleMouseUp(mouse.X, mouse.Y);
+                }
+            }
         }
     }
 }

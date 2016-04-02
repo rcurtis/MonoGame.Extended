@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Shapes;
@@ -7,6 +8,11 @@ namespace MonoGame.Extended.SceneGraphs
 {
     public class SceneNode : IMovable, IRotatable, IScalable
     {
+        public delegate void HandleMouseEventDelegate(int x, int y);
+
+        public HandleMouseEventDelegate MouseDown = delegate { };
+        public HandleMouseEventDelegate MouseUp = delegate { };
+
         public SceneNode(string name)
             : this(name, Vector2.Zero, 0, Vector2.One)
         {
@@ -23,6 +29,7 @@ namespace MonoGame.Extended.SceneGraphs
             Position = position;
             Rotation = rotation;
             Scale = scale;
+            Touchable = true;
 
             Children = new SceneNodeCollection(this);
             Entities = new SceneEntityCollection();
@@ -40,6 +47,8 @@ namespace MonoGame.Extended.SceneGraphs
         public SceneNode Parent { get; internal set; }
         public SceneNodeCollection Children { get; }
         public SceneEntityCollection Entities { get; }
+        public bool Touchable { get; set; }
+        public bool IsMouseDown { get; set; }
         public object Tag { get; set; }
 
         public RectangleF GetBoundingRectangle()
@@ -107,6 +116,32 @@ namespace MonoGame.Extended.SceneGraphs
         public override string ToString()
         {
             return $"name: {Name}, position: {Position}, rotation: {Rotation}, scale: {Scale}";
+        }
+
+        internal void HandleMouseDown(int x, int y)
+        {
+            if (!IsMouseDown)
+            {
+                OnMouseDown(x, y);
+            }
+        }
+
+        protected virtual void OnMouseDown(int x, int y)
+        {
+            MouseDown?.Invoke(x, y);
+            IsMouseDown = true;
+        }
+
+        internal void HandleMouseUp(int x, int y)
+        {
+            if(IsMouseDown)
+                OnMouseUp(x, y);
+        }
+
+        protected virtual void OnMouseUp(int x, int y)
+        {
+            MouseUp?.Invoke(x, y);
+            IsMouseDown = false;
         }
     }
 }
